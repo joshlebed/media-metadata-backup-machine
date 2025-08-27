@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# UV
+uv.lock
+.python-version
+
+# Ruff
+.ruff_cache/
+
+# Mypy
+.mypy_cache/
+
+# User configuration
+config.yaml
+
+# Logs
+logs/
+*.log

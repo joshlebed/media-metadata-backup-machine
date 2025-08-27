@@ -1,0 +1,52 @@
+# Media Metadata Backup Machine Configuration
+# Copy this file to config.yaml and adjust paths for your setup
+
+# Source directories - where your media and torrents are stored
+sources:
+  # Directory containing your movie files
+  movies_dir: "/mnt/vault/movies"
+
+  # Directory containing .torrent files for matching
+  torrents_dir: "/mnt/vault/metadata"
+
+# Output configuration - where to save the generated indexes
+output:
+  # Directory where the backup metadata will be stored
+  # This should be inside a git repository for version control
+  backup_dir: "/mnt/vault/media-metadata-backup"
+
+  # Filename for the CSV index (will be created in backup_dir)
+  csv_filename: "movies.csv"
+
+  # Filename for the Markdown index (will be created in backup_dir)
+  markdown_filename: "MOVIES.md"
+
+# Git configuration
+git:
+  # Commit message for automated updates
+  commit_message: "Update movies index"
+
+  # Whether to automatically pull before updating (recommended for cron jobs)
+  auto_pull: true
+
+  # Whether to automatically push after committing
+  auto_push: true
+
+# Logging configuration
+logging:
+  # Log file location (use absolute path for cron jobs)
+  log_file: "/home/joshlebed/.local/state/media-metadata-backup-machine/movie-index-update.log"
+
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  log_level: "INFO"
+
+# Processing options
+options:
+  # Skip hidden directories (starting with .)
+  skip_hidden: true
+
+  # Ignore specific directories by name
+  ignore_dirs:
+    - "extras"
+    - "behind-the-scenes"
+    - "samples"

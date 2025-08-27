@@ -1,0 +1,7 @@
+{
+  // Use Ruff as the default formatter for Python
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true
+  }
+}
