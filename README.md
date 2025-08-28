@@ -45,7 +45,7 @@ output:
 
 ## Automated Updates
 
-Add to crontab for daily updates:
+Add to crontab for daily updates. Run `crontab -e` and add the following line:
 
 ```bash
 # Run daily at 3 AM
