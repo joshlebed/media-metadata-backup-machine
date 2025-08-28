@@ -76,21 +76,27 @@ log "Starting movie index update..."
 log "Using config file: $CONFIG_FILE"
 log "Backup directory: $BACKUP_DIR"
 
-# Check if UV is installed
-if ! command -v uv &> /dev/null; then
-    error_exit "UV is not installed or not in PATH"
+# Check for UV or Python
+PYTHON_CMD=""
+if command -v uv &> /dev/null; then
+    PYTHON_CMD="uv run python"
+    log "Using UV to run Python"
+elif command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+    log "Using python3 directly"
+elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+    log "Using python directly"
+else
+    error_exit "Neither UV nor Python is installed or in PATH"
 fi
 
-# Check if we're in a git repository or if backup dir is in a git repo
-REPO_DIR="$SCRIPT_DIR"
-if [[ ! -d "$SCRIPT_DIR/.git" ]]; then
-    # Check if backup directory is in a git repo
-    if [[ -d "$BACKUP_DIR/.git" ]] || git -C "$BACKUP_DIR" rev-parse --git-dir > /dev/null 2>&1; then
-        REPO_DIR="$BACKUP_DIR"
-        log "Using git repository at: $REPO_DIR"
-    else
-        error_exit "Neither script directory nor backup directory is in a git repository"
-    fi
+# Check if backup directory is in a git repo - this is where we want to commit
+if [[ -d "$BACKUP_DIR/.git" ]] || git -C "$BACKUP_DIR" rev-parse --git-dir > /dev/null 2>&1; then
+    REPO_DIR="$BACKUP_DIR"
+    log "Using git repository at: $REPO_DIR"
+else
+    error_exit "Backup directory $BACKUP_DIR is not in a git repository"
 fi
 
 # Pull latest changes from remote if configured
@@ -104,19 +110,24 @@ fi
 # Run the Python script to update indexes
 log "Running Python indexer..."
 export CONFIG_FILE
-if uv run update_movies_index.py; then
+if $PYTHON_CMD update_movies_index.py; then
     log "Index generation completed successfully"
     
     # Check if there are changes to commit
     cd "$REPO_DIR"
-    if git diff --quiet HEAD -- "$BACKUP_DIR/$MD_FILENAME" "$BACKUP_DIR/$CSV_FILENAME" 2>/dev/null; then
+    
+    # Since REPO_DIR is always BACKUP_DIR now, files are relative to repo root
+    MD_PATH="$MD_FILENAME"
+    CSV_PATH="$CSV_FILENAME"
+    
+    if git diff --quiet HEAD -- "$MD_PATH" "$CSV_PATH" 2>/dev/null; then
         log "No changes detected in index files"
         exit 0
     fi
     
     # Stage the changed files
     log "Staging changes..."
-    git add "$BACKUP_DIR/$MD_FILENAME" "$BACKUP_DIR/$CSV_FILENAME"
+    git add "$MD_PATH" "$CSV_PATH"
     
     # Commit the changes
     log "Committing changes..."

@@ -406,8 +406,7 @@ def make_markdown(rows: list[dict[str, Any]], last_updated: datetime) -> str:
     for row in sorted_rows:
         lines.append(f"- {row['title']}")
 
-    lines.append("\n")
-    return "\n".join(lines)
+    return "\n".join(lines) + "\n"
 
 
 def make_csv(rows: list[dict[str, Any]], output_path: Path) -> bool:
